@@ -34,15 +34,19 @@ public class Robot extends RobotBase {
         IRobotMode desiredMode = null;
 
         while (true) {
-            LiveWindow.setEnabled(isTest());
+            desiredMode = getDesiredMode();
+            
+            if (desiredMode != currentMode) {
+                LiveWindow.setEnabled(isTest());
+                doPeripheralReinitialization();
+                desiredMode.init();
+                currentMode = desiredMode;
+            }
+            currentMode.periodic();
             doPeripheralPeriodicProcessing();
-            desiredMode.init();
-            currentMode = desiredMode;
+            SmartDashboard.updateValues();
+            LiveWindow.updateValues();
         }
-        currentMode.periodic();
-        doPeripheralPeriodicProcessing();
-        SmartDashboard.updateValues();
-        LiveWindow.updateValues();
     }
 
     private void doPeripheralReinitialization() {
