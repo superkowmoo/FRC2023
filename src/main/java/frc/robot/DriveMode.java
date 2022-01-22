@@ -1,6 +1,7 @@
 package frc.robot;
 
 public enum DriveMode {
-    DRIVERCONTROL,
+    IDLE,
+    MANUAL,
     AUTODRIVING
 }
