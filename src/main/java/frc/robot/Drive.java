@@ -1,7 +1,9 @@
 package frc.robot;
  
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import com.revrobotics.*;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Drive implements IDrive {
 
@@ -44,17 +46,22 @@ public class Drive implements IDrive {
     public Drive(IGyroscopeSensor gyroscope) {
         this.gyroscope = gyroscope;
 
-        frontLeftMotor = new CANSparkMax(PortMap.CAN.FRONT_LEFT_MOTOR);
-        frontRightMotor = new CANSparkMax(PortMap.CAN.FRONT_RIGHT_MOTOR);
-        rearLeftMotor = new CANSparkMax(PortMap.CAN.REAR_LEFT_MOTOR);
-        rearRightMotor = new CANSparkMax(PortMap.CAN.REAR_RIGHT_MOTOR);
+        frontLeftMotor = new CANSparkMax(PortMap.CAN.FRONT_LEFT_MOTOR, MotorType.kBrushless);
+        frontRightMotor = new CANSparkMax(PortMap.CAN.FRONT_RIGHT_MOTOR, MotorType.kBrushless);
+        rearLeftMotor = new CANSparkMax(PortMap.CAN.REAR_LEFT_MOTOR, MotorType.kBrushless);
+        rearRightMotor = new CANSparkMax(PortMap.CAN.REAR_RIGHT_MOTOR, MotorType.kBrushless);
 
         frontLeftMotor.setInverted(false);
         frontRightMotor.setInverted(false);
         rearLeftMotor.setInverted(false);
         rearRightMotor.setInverted(false);
 
-        driveBase = new MecanumDrive(frontLeftMotor, frontRightMotor, rearLeftMotor, rearRightMotor);
+        frontLeftMotor.restoreFactoryDefaults();
+        frontRightMotor.restoreFactoryDefaults();
+        rearLeftMotor.restoreFactoryDefaults();
+        rearRightMotor.restoreFactoryDefaults();
+
+        driveBase = new MecanumDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
 
         rotationController = new SparkMaxPIDController(setP, setI, setD);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
@@ -63,7 +70,7 @@ public class Drive implements IDrive {
 
     @Override
     public DriveMode getCurrentDriveMode() {
-        return DriveMode;
+        return driveMode;
     }
 
     @Override
@@ -175,14 +182,14 @@ public class Drive implements IDrive {
             driveBase.drivePolar(autoSpeed, autoAngleDegrees, angularSpeed);
 
             // Check if we've completed our travel
-            double averageDistanceTraveledLeft = Math.abs((FrontLeftMotor.getDistance() + RearLeftMotor.getDistance()) / 2);
-            double averageDistanceTraveledRight = Math.abs((FrontRightMotor.getDistance() + RearRightMotor.getDistance()) / 2);
+            double averageDistanceTraveledLeft = Math.abs((frontLeftMotor.getEncoder().getPosition() + rearLeftMotor.getEncoder().getPosition()) / 2);
+            double averageDistanceTraveledRight = Math.abs((frontRightMotor.getEncoder().getPosition() + rearRightMotor.getEncoder().getPosition()) / 2);
             double averageDistanceTraveled = Math.abs((averageDistanceTraveledLeft + averageDistanceTraveledRight) / 2);
             Debug.logPeriodic("Total Distance: " + averageDistanceTraveled);
-            Debug.logPeriodic("Rear left encoder: " + rearLeftMotor.getDistance());
-            Debug.logPeriodic("Rear right encoder: " + rearRightMotor.getDistance());
-            Debug.logPeriodic("Front left encoder: " + frontLeftMotor.getDistance());
-            Debug.logPeriodic("Front right encoder: " + frontRightMotor.getDistance());
+            Debug.logPeriodic("Rear left encoder: " + rearLeftMotor.getEncoder().getPosition());
+            Debug.logPeriodic("Rear right encoder: " + rearRightMotor.getEncoder().getPosition());
+            Debug.logPeriodic("Front left encoder: " + frontLeftMotor.getEncoder().getPosition());
+            Debug.logPeriodic("Front right encoder: " + frontRightMotor.getEncoder().getPosition());
             Debug.logPeriodic("---");
             if (averageDistanceTraveled > desiredDistance) {
                 handleActionEnd();

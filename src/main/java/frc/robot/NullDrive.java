@@ -3,7 +3,7 @@ package frc.robot;
 public class NullDrive implements IDrive {
     
     public DriveMode getCurrentDriveMode() {
-        return DriveMode.IDLEORMANUAL;
+        return DriveMode.IDLE;
     }
 
     public void rotateRelative(double angle) {
