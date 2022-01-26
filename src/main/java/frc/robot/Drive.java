@@ -1,7 +1,7 @@
 package frc.robot;
  
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import com.revrobotics;
+import com.revrobotics.*;
 
 public class Drive implements IDrive {
 
@@ -20,7 +20,7 @@ public class Drive implements IDrive {
 
 
     // PID (Proportional gain may need to be changed, add other gains if needed)
-    private SparkMaxPIDController rotationControl;
+    private SparkMaxPIDController rotationController;
     private double setP = 0.6; // << same gain from 2020
     private double setI = 0.0;
     private double setD = 0.0;
@@ -42,12 +42,12 @@ public class Drive implements IDrive {
     TODO: find resolution, and roation tolerance for auto */
 
     public Drive(IGyroscopeSensor gyroscope) {
-        this.gryoscrope = gyroscope;
+        this.gyroscope = gyroscope;
 
         frontLeftMotor = new CANSparkMax(PortMap.CAN.FRONT_LEFT_MOTOR);
         frontRightMotor = new CANSparkMax(PortMap.CAN.FRONT_RIGHT_MOTOR);
-        rearLeftMotor = new CANSparkMax(PortMap.CAN.REAR.LEFT.MOTOR);
-        rearRightMotor = new CANSparkMax(PortMap.CAN.REAR.RIGHT.MOTOR);
+        rearLeftMotor = new CANSparkMax(PortMap.CAN.REAR_LEFT_MOTOR);
+        rearRightMotor = new CANSparkMax(PortMap.CAN.REAR_RIGHT_MOTOR);
 
         frontLeftMotor.setInverted(false);
         frontRightMotor.setInverted(false);
