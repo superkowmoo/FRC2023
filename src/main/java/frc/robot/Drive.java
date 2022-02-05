@@ -1,14 +1,14 @@
 package frc.robot;
- 
+
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Drive implements IDrive {
 
     private MecanumDrive driveBase;
-
+    
     private DriveMode driveMode;
     private IGyroscopeSensor gyroscope;
     private Runnable currentCompletionRoutine;
@@ -22,7 +22,7 @@ public class Drive implements IDrive {
 
 
     // PID (Proportional gain may need to be changed, add other gains if needed)
-    private SparkMaxPIDController rotationController;
+    private PIDController rotationController;
     private double setP = 0.6; // << same gain from 2020
     private double setI = 0.0;
     private double setD = 0.0;
@@ -39,9 +39,8 @@ public class Drive implements IDrive {
     private double desiredDistance;
 
     private static final double WHEEL_DIAMETER = 8.0;
-    /*private static final double ENCODER_RESOLUTION = 2048.0;
-    private static final double ROTATION_TOLERANCE_DEGREES = 2.0; //inches
-    TODO: find resolution, and roation tolerance for auto */
+    private static final double ENCODER_RESOLUTION = 2048.0;
+    private static final double ROTATION_TOLERANCE_DEGREES = 2.0; // inches
 
     public Drive(IGyroscopeSensor gyroscope) {
         this.gyroscope = gyroscope;
@@ -63,7 +62,7 @@ public class Drive implements IDrive {
 
         driveBase = new MecanumDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
 
-        rotationController = new SparkMaxPIDController(setP, setI, setD);
+        rotationController = new PIDController(setP, setI, setD);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
         rotationController.setTolerance(Math.toRadians(ROTATION_TOLERANCE_DEGREES));
     }
