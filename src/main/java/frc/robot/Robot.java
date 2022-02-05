@@ -66,7 +66,7 @@ public class Robot extends RobotBase {
         } else if (isAutonomous()) {
             HAL.observeUserProgramAutonomous();
             return autonomousMode;
-        } else if (isOperatorControl()) {
+        } else if (isTeleop()) {
             HAL.observeUserProgramTeleop();
             return teleoperatedMode;
         } else if (isTest()) {
