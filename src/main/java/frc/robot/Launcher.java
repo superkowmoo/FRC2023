@@ -51,8 +51,6 @@ public class Launcher implements ILauncher {
         intakeMotor = new CANSparkMax(PortMap.CAN.INTAKE_MOTOR_CONTROLLER, MotorType.kBrushless);
         shooterMotor = new CANSparkMax(PortMap.CAN.SHOOTER_MOTOR_CONTROLLER, MotorType.kBrushless);
         //the stuff below is old from last year
-        // storageMotor = new TalonEncoder(storageMotor);
-        // storageMotor.setInverted(true);
         // storageSwitch = new DigitalInput(PortMap.DIO.BOTTOM_STORAGE);
 
         shooterMotor.setInverted(true);
@@ -78,7 +76,7 @@ public class Launcher implements ILauncher {
 
     @Override
     public void intake() {
-
+        storageMode = StorageMode.STORAGE_INTAKE;
     }
 
     @Override
@@ -104,6 +102,7 @@ public class Launcher implements ILauncher {
 
             if(storageMotor.getEncoder().getPosition() > INITIAL_INTAKE_ROTATIONS) {
                 storageMode = StorageMode.IDLE;
+                storageMotor.restoreFactoryDefaults();
             } else {
                 intakeSpeed = INTAKE_HIGH;
                 storageSpeed = STORAGE_HIGH;
