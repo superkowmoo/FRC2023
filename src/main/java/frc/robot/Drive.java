@@ -50,15 +50,15 @@ public class Drive implements IDrive {
         rearLeftMotor = new CANSparkMax(PortMap.CAN.REAR_LEFT_MOTOR, MotorType.kBrushless);
         rearRightMotor = new CANSparkMax(PortMap.CAN.REAR_RIGHT_MOTOR, MotorType.kBrushless);
 
-        frontLeftMotor.setInverted(false);
-        frontRightMotor.setInverted(false);
-        rearLeftMotor.setInverted(false);
-        rearRightMotor.setInverted(false);
-
         frontLeftMotor.restoreFactoryDefaults();
         frontRightMotor.restoreFactoryDefaults();
         rearLeftMotor.restoreFactoryDefaults();
         rearRightMotor.restoreFactoryDefaults();
+
+        frontLeftMotor.setInverted(false);
+        frontRightMotor.setInverted(true);
+        rearLeftMotor.setInverted(false);
+        rearRightMotor.setInverted(true);
 
         driveBase = new MecanumDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
 
@@ -121,8 +121,8 @@ public class Drive implements IDrive {
     public void driveManualImplementation(double forwardSpeed, double strafeSpeed) {
         driveMode = DriveMode.MANUAL;
 
-        double absoluteForward = forwardSpeed * Math.cos(gyroscope.getYaw()) + strafeSpeed * Math.sin(gyroscope.getYaw());
-        double absoluteStrafe = -forwardSpeed * Math.sin(gyroscope.getYaw()) + strafeSpeed * Math.cos(gyroscope.getYaw()); 
+        double absoluteForward = .1 * (forwardSpeed * Math.cos(gyroscope.getYaw()) + strafeSpeed * Math.sin(gyroscope.getYaw()));
+        double absoluteStrafe = .1 * (-forwardSpeed * Math.sin(gyroscope.getYaw()) + strafeSpeed * Math.cos(gyroscope.getYaw())); 
 
         this.forwardSpeed = absoluteForward;
         this.strafeSpeed = absoluteStrafe;
@@ -166,9 +166,9 @@ public class Drive implements IDrive {
     }
 
     private void manualControlPeriodic() {
-        angularSpeed = rotationController.calculate(gyroscope.getYaw(), desiredAngle);
+        angularSpeed = 0.05 * rotationController.calculate(gyroscope.getYaw(), desiredAngle);
         
-        driveBase.driveCartesian(strafeSpeed, forwardSpeed, angularSpeed);
+        driveBase.driveCartesian(forwardSpeed, strafeSpeed, angularSpeed);
     }
 
     @Override
