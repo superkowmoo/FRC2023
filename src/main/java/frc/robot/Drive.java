@@ -121,8 +121,8 @@ public class Drive implements IDrive {
     public void driveManualImplementation(double forwardSpeed, double strafeSpeed) {
         driveMode = DriveMode.MANUAL;
 
-        double absoluteForward = .1 * (forwardSpeed * Math.cos(gyroscope.getYaw()) + strafeSpeed * Math.sin(gyroscope.getYaw()));
-        double absoluteStrafe = .1 * (-forwardSpeed * Math.sin(gyroscope.getYaw()) + strafeSpeed * Math.cos(gyroscope.getYaw())); 
+        double absoluteForward = -.1 * (forwardSpeed * Math.cos(gyroscope.getYaw()) + strafeSpeed * Math.sin(gyroscope.getYaw()));
+        double absoluteStrafe = -.1 * (-forwardSpeed * Math.sin(gyroscope.getYaw()) + strafeSpeed * Math.cos(gyroscope.getYaw())); 
 
         this.forwardSpeed = absoluteForward;
         this.strafeSpeed = absoluteStrafe;
@@ -166,7 +166,7 @@ public class Drive implements IDrive {
     }
 
     private void manualControlPeriodic() {
-        angularSpeed = 0.05 * rotationController.calculate(gyroscope.getYaw(), desiredAngle);
+        angularSpeed = 0.25 * rotationController.calculate(gyroscope.getYaw(), desiredAngle);
         
         driveBase.driveCartesian(forwardSpeed, strafeSpeed, angularSpeed);
     }
@@ -175,6 +175,9 @@ public class Drive implements IDrive {
     public void periodic() {
         if (driveMode == DriveMode.MANUAL) {
             manualControlPeriodic();
+            Debug.logPeriodic("Yaw" + Double.toString(gyroscope.getYaw()));
+            Debug.logPeriodic("desired angle " + Double.toString(desiredAngle));
+            Debug.logPeriodic("angular speed" + Double.toString(angularSpeed));
         } else if (driveMode == DriveMode.AUTODRIVING) {
             angularSpeed = rotationController.calculate(gyroscope.getYaw(), desiredAngle);
         
