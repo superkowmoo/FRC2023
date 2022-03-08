@@ -73,6 +73,11 @@ public class Drive implements IDrive {
     }
 
     @Override
+    public void resetGyro() {
+        gyroscope.resetYaw();
+    }
+
+    @Override
     public void rotateRelative(double angle) {
         driveMode = DriveMode.MANUAL;
         

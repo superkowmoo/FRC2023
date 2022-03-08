@@ -66,6 +66,10 @@ public class TeleoperatedMode implements IRobotMode {
         if (xboxController.getBButton()) {
             launcher.advance();
         }
+
+        if (xboxController.getBackButton()) {
+            drive.resetGyro();
+        }
      }
 
 }

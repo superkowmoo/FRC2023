@@ -4,12 +4,14 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import java.util.Map;
 
 public class Launcher implements ILauncher {
 
+    private VictorSPX intakeMotor;
     private CANSparkMax shooterMotor;
-    private CANSparkMax intakeMotor;
     private CANSparkMax storageMotor;
 
     private SparkMaxPIDController shooterPIDController;
@@ -27,14 +29,14 @@ public class Launcher implements ILauncher {
     private static final double INTAKE_HIGH = 0.5;
     private static final double STORAGE_HIGH = 0.5;
     
-    private static final double INITIAL_INTAKE_ROTATIONS = 0.0;
-    private static final double ADVANCE_ONE_BALL_ROTATIONS = 0.0;
+    private static final double INITIAL_INTAKE_ROTATIONS = 30000;
+    private static final double ADVANCE_ONE_BALL_ROTATIONS = 20000;
     // TODO: find actual values 
 
     private double maxOutput = 1.0;
     private double minOutput = 0.0;
     private double shooterSetPoint = 0.0;
-    private double maxRPM = 0.0;
+    private double maxRPM = 0.3;
 
     private enum StorageMode {
         IDLE,
@@ -47,8 +49,8 @@ public class Launcher implements ILauncher {
 
     public Launcher() {
 
+        intakeMotor = new VictorSPX(PortMap.CAN.INTAKE_MOTOR_CONTROLLER);
         storageMotor = new CANSparkMax(PortMap.CAN.STORAGE_MOTOR_CONTROLLER, MotorType.kBrushless);
-        intakeMotor = new CANSparkMax(PortMap.CAN.INTAKE_MOTOR_CONTROLLER, MotorType.kBrushless);
         shooterMotor = new CANSparkMax(PortMap.CAN.SHOOTER_MOTOR_CONTROLLER, MotorType.kBrushless);
         //the stuff below is old from last year
         // storageSwitch = new DigitalInput(PortMap.DIO.BOTTOM_STORAGE);
@@ -135,7 +137,7 @@ public class Launcher implements ILauncher {
 
         }
 
-        intakeMotor.set(intakeSpeed);
+        intakeMotor.set(ControlMode.PercentOutput, intakeSpeed);
         storageMotor.set(storageSpeed);
         shooterPIDController.setReference(shooterSetPoint, ControlType.kVelocity);
     }
