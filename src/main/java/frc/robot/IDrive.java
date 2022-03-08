@@ -5,6 +5,8 @@ public interface IDrive {
     
     public DriveMode getCurrentDriveMode();
 
+    public void resetGyro();
+
     // Teleoperated methods use radians
     // Turns the robot by a relative angle
     public void rotateRelative(double angle);
