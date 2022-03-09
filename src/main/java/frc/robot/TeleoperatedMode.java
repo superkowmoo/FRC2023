@@ -27,7 +27,7 @@ public class TeleoperatedMode implements IRobotMode {
     }
 
      @Override
-     public void periodic(){
+     public void periodic() {
 
         double leftX = xboxController.getLeftX();
         double leftY = -xboxController.getLeftY();

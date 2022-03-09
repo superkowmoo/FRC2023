@@ -100,7 +100,7 @@ public class Launcher implements ILauncher {
     public void periodic() {
         stop();
 
-      if(storageMode == StorageMode.STORAGE_INTAKE) {
+        if(storageMode == StorageMode.STORAGE_INTAKE) {
 
             if(storageMotor.getEncoder().getPosition() > INITIAL_INTAKE_ROTATIONS) {
                 storageMode = StorageMode.IDLE;
