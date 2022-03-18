@@ -1,6 +1,9 @@
 package frc.robot;
 
 public class NullDrive implements IDrive {
+
+    public void resetGyro() {
+    }
     
     public DriveMode getCurrentDriveMode() {
         return DriveMode.IDLE;
