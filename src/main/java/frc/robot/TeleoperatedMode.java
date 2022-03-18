@@ -15,7 +15,6 @@ public class TeleoperatedMode implements IRobotMode {
 
     public TeleoperatedMode(IDrive drive, ILauncher launcher){ 
         xboxController = new XboxController(PortMap.USB.XBOXCONTROLLER);
-
         this.drive = drive;
         this.launcher = launcher;
     }
@@ -66,6 +65,12 @@ public class TeleoperatedMode implements IRobotMode {
         if (xboxController.getBButton()) {
             launcher.advance();
         }
+        if (xboxController.getXButton()) {
+            launcher.lower();
+         }
+         if (xboxController.getYButton()) {
+             launcher.raise();
+         }
 
         if (xboxController.getBackButton()) {
             drive.resetGyro();
