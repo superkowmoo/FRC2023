@@ -17,6 +17,7 @@ public class Robot extends RobotBase {
 
     public Robot() {
         gyroscope = new NavXMXP();
+        launcher = new Launcher();
 
         drive = new Drive(gyroscope);
         //drive = new NullDrive();
@@ -51,11 +52,12 @@ public class Robot extends RobotBase {
 
     private void doPeripheralReinitialization() {
         drive.init();
+        launcher.init();
     }
 
     private void doPeripheralPeriodicProcessing() {
         drive.periodic();
-
+        launcher.periodic();
         Debug.periodic();
     }
 
@@ -79,6 +81,6 @@ public class Robot extends RobotBase {
 
     @Override
     public void endCompetition() {
-        //TODO: add end competition code
+        
     }
 }

@@ -4,15 +4,12 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import java.util.Map;
 
 public class Launcher implements ILauncher {
-
-    private VictorSPX intakeMotor;
+  
     private Mode mode;
 
+    private CANSparkMax intakeMotor;
     private CANSparkMax shooterMotor;
     private CANSparkMax storageMotor;
 
@@ -27,24 +24,17 @@ public class Launcher implements ILauncher {
 
     private double intakeSpeed = 0.0;
     private double storageSpeed = 0.0;
-    private double shooterSpeed = 0.0;
 
-    private static final double INTAKE_HIGH = 0.5;
+    private static final double INTAKE_HIGH = 0.45;
     private static final double STORAGE_HIGH = 0.5;
-    private static final double SHOOTER_HIGH = 0.5;
-    
-    private static final double INITIAL_INTAKE_ROTATIONS = 30000;
-    private static final double ADVANCE_ONE_BALL_ROTATIONS = 20000;
-   
+  
     private static final double AUTO_SHOOTER_ROTATIONS = 10000;
     private static final double AUTO_STORAGE_ROTATIONS = 50;
-
-    // TODO: find actual values 
 
     private double maxOutput = 1.0;
     private double minOutput = 0.0;
     private double shooterSetPoint = 0.0;
-    private double maxRPM = 0.3;
+    private double maxRPM = 3000;
 
     private enum StorageMode {
         IDLE,
@@ -57,16 +47,17 @@ public class Launcher implements ILauncher {
 
     public Launcher() {
 
-        intakeMotor = new VictorSPX(PortMap.CAN.INTAKE_MOTOR_CONTROLLER);
+        intakeMotor = new CANSparkMax(PortMap.CAN.INTAKE_MOTOR_CONTROLLER, MotorType.kBrushed);
         storageMotor = new CANSparkMax(PortMap.CAN.STORAGE_MOTOR_CONTROLLER, MotorType.kBrushless);
         shooterMotor = new CANSparkMax(PortMap.CAN.SHOOTER_MOTOR_CONTROLLER, MotorType.kBrushless);
-        //the stuff below is old from last year
-        // storageSwitch = new DigitalInput(PortMap.DIO.BOTTOM_STORAGE);
-
-        shooterMotor.setInverted(true);
+        
+        shooterMotor.setInverted(false);
         shooterPIDController = shooterMotor.getPIDController();
         shooterPIDController.setOutputRange(minOutput, maxOutput);
-        // setDistance(228.0);
+        shooterPIDController.setP(.001);
+        shooterPIDController.setD(0);
+        shooterPIDController.setI(0);
+        shooterPIDController.setFF(.000185);
     }
 
     @Override
@@ -86,21 +77,25 @@ public class Launcher implements ILauncher {
 
     @Override
     public void intake() {
+        mode = Mode.MANUAL;
         storageMode = StorageMode.STORAGE_INTAKE;
     }
 
     @Override
     public void advance() {
+        mode = Mode.MANUAL;
         storageMode = StorageMode.ADVANCE;
     }
 
     @Override
     public void reverse() {
+        mode = Mode.MANUAL;
         storageMode = StorageMode.REVERSE;
     }
 
     @Override
     public void shoot() {
+        mode = Mode.MANUAL;
         shooterMode = ShooterMode.SHOOT;
     }
 
@@ -113,59 +108,27 @@ public class Launcher implements ILauncher {
     }
 
 
-@Override
+    @Override
     public void periodic() {
         stop();
-        if(mode == Mode.MANUAL) {
-            if(storageMode == StorageMode.STORAGE_INTAKE) {
+        if (mode == Mode.MANUAL) {
 
-                if(storageMotor.getEncoder().getPosition() > INITIAL_INTAKE_ROTATIONS) {
-                    storageMode = StorageMode.IDLE;
-                    storageMotor.restoreFactoryDefaults();
-                } else {
-                    intakeSpeed = INTAKE_HIGH;
-                    storageSpeed = STORAGE_HIGH;
-                }
-
-            } else if(storageMode == StorageMode.ADVANCE) {
-
-                if(storageMotor.getEncoder().getPosition() > ADVANCE_ONE_BALL_ROTATIONS) {
-                    storageMode = StorageMode.IDLE;
-                    storageMotor.restoreFactoryDefaults();
-                } else {
-                    storageSpeed = STORAGE_HIGH;
-                }
-
-            } else if(storageMode == StorageMode.REVERSE) {
-
-                if(Math.abs(storageMotor.getEncoder().getPosition()) > ADVANCE_ONE_BALL_ROTATIONS) {
-                    storageMode = StorageMode.IDLE;
-                    storageMotor.restoreFactoryDefaults();
-                } else {
-                    storageSpeed = -STORAGE_HIGH;
-                }
-
-        if(storageMode == StorageMode.STORAGE_INTAKE) {
-
-            if(storageMotor.getEncoder().getPosition() > INITIAL_INTAKE_ROTATIONS) {
-                storageMode = StorageMode.IDLE;
-                storageMotor.restoreFactoryDefaults();
-            } else {
+            if (storageMode == StorageMode.STORAGE_INTAKE) {
                 intakeSpeed = INTAKE_HIGH;
+                storageMode = StorageMode.IDLE;
+            } else if (storageMode == StorageMode.ADVANCE) {
                 storageSpeed = STORAGE_HIGH;
+                storageMode = StorageMode.IDLE;
+            } else if (storageMode == StorageMode.REVERSE) {
+                storageSpeed = -STORAGE_HIGH;
+                storageMode = StorageMode.IDLE;
             }
-            
+        
             if(shooterMode == ShooterMode.SHOOT) {
-
                 shooterSetPoint = maxRPM;
                 shooterMode = ShooterMode.IDLE;
-
             }
-
-            intakeMotor.set(intakeSpeed);
-            storageMotor.set(storageSpeed);
-            shooterPIDController.setReference(shooterSetPoint, ControlType.kVelocity);
-
+          
         } else if (mode == Mode.AUTO) {
     
             if (storageMotor.getEncoder().getPosition() > AUTO_STORAGE_ROTATIONS) {
@@ -175,22 +138,18 @@ public class Launcher implements ILauncher {
                 storageSpeed = STORAGE_HIGH;
             }
 
-            if(shooterMotor.getEncoder().getPosition() > AUTO_SHOOTER_ROTATIONS) {
+            if (shooterMotor.getEncoder().getPosition() > AUTO_SHOOTER_ROTATIONS) {
                 shooterMode = ShooterMode.IDLE;
                 shooterMotor.restoreFactoryDefaults();
-            } else shooterSpeed = SHOOTER_HIGH; 
-
-            intakeMotor.set(intakeSpeed);
-            storageMotor.set(storageSpeed);
-            shooterPIDController.setReference(shooterSetPoint, ControlType.kVelocity);
+            } else {
+                shooterSetPoint = maxRPM;
+            }
 
         } else {
             throw new IllegalArgumentException("The launcher controllers are in an invalid launcher mode.");
         }
-
-        intakeMotor.set(ControlMode.PercentOutput, intakeSpeed);
+        intakeMotor.set(intakeSpeed);
         storageMotor.set(storageSpeed);
         shooterPIDController.setReference(shooterSetPoint, ControlType.kVelocity);
-    }
     }   
 }
