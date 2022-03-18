@@ -9,7 +9,7 @@ public class Drive implements IDrive {
 
     private MecanumDrive driveBase;
     
-    private DriveMode driveMode;
+    private Mode mode;
     private IGyroscopeSensor gyroscope;
     private Runnable currentCompletionRoutine;
 
@@ -68,8 +68,8 @@ public class Drive implements IDrive {
     }
 
     @Override
-    public DriveMode getCurrentDriveMode() {
-        return driveMode;
+    public Mode getCurrentDriveMode() {
+        return mode;
     }
 
     @Override
@@ -79,14 +79,14 @@ public class Drive implements IDrive {
 
     @Override
     public void rotateRelative(double angle) {
-        driveMode = DriveMode.MANUAL;
+        mode = Mode.MANUAL;
         
         desiredAngle = gyroscope.getYaw() + angle; 
     }
 
     @Override
     public void rotateAbsolute(double angle) {
-        driveMode = DriveMode.MANUAL;
+        mode = Mode.MANUAL;
 
         desiredAngle = angle;
     }
@@ -99,7 +99,7 @@ public class Drive implements IDrive {
     @Override
     public void driveDistance(double distanceInches, double speed, double angle, Runnable completionRoutine) {
         
-        driveMode = DriveMode.AUTODRIVING;
+        mode = Mode.AUTO;
         
         setCompletionRoutine(completionRoutine);
         desiredDistance = distanceInches;
@@ -109,7 +109,7 @@ public class Drive implements IDrive {
 
     @Override
     public void rotateRelative(double angle, Runnable completionRoutine) {
-        driveMode = DriveMode.AUTODRIVING;
+        mode = Mode.AUTO;
         
         setCompletionRoutine(completionRoutine);
         desiredAngle = gyroscope.getYaw() + Math.toRadians(angle);
@@ -117,14 +117,14 @@ public class Drive implements IDrive {
 
     @Override
     public void rotateAbsolute(double angle, Runnable completionRoutine) {
-        driveMode = DriveMode.AUTODRIVING;
+        mode = Mode.AUTO;
         
         setCompletionRoutine(completionRoutine);
         desiredAngle = Math.toRadians(angle);
     }
 
     public void driveManualImplementation(double forwardSpeed, double strafeSpeed) {
-        driveMode = DriveMode.MANUAL;
+        mode = Mode.MANUAL;
 
         double absoluteForward = -.1 * (forwardSpeed * Math.cos(gyroscope.getYaw()) + strafeSpeed * Math.sin(gyroscope.getYaw()));
         double absoluteStrafe = -.1 * (-forwardSpeed * Math.sin(gyroscope.getYaw()) + strafeSpeed * Math.cos(gyroscope.getYaw())); 
@@ -152,12 +152,12 @@ public class Drive implements IDrive {
         stop();
     }
 
-    private void setCompletionRoutine(Runnable completionRountime) {
+    private void setCompletionRoutine(Runnable completionRoutine) {
         if (currentCompletionRoutine != null) {
             throw new IllegalStateException("Tried to perform an autonomous action while one was already in progress!");
         }
 
-        currentCompletionRoutine = completionRountime;
+        currentCompletionRoutine = completionRoutine;
     }
 
     private void handleActionEnd() {
@@ -178,12 +178,12 @@ public class Drive implements IDrive {
 
     @Override
     public void periodic() {
-        if (driveMode == DriveMode.MANUAL) {
+        if (mode == Mode.MANUAL) {
             manualControlPeriodic();
             Debug.logPeriodic("Yaw" + Double.toString(gyroscope.getYaw()));
             Debug.logPeriodic("desired angle " + Double.toString(desiredAngle));
             Debug.logPeriodic("angular speed" + Double.toString(angularSpeed));
-        } else if (driveMode == DriveMode.AUTODRIVING) {
+        } else if (mode == Mode.AUTO) {
             angularSpeed = rotationController.calculate(gyroscope.getYaw(), desiredAngle);
         
             driveBase.drivePolar(autoSpeed, autoAngleDegrees, angularSpeed);

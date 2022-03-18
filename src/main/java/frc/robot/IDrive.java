@@ -3,7 +3,7 @@ package frc.robot;
 
 public interface IDrive {
     
-    public DriveMode getCurrentDriveMode();
+    public Mode getCurrentDriveMode();
 
     public void resetGyro();
 
