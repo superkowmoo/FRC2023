@@ -1,21 +1,15 @@
-package main.java.frc.robot;
+package frc.robot;
 
-   // x lowers and y raises, reset when we starts
-    import edu.wpi.first.wpilibj.XboxController;
-    import edu.wpi.first.wpilibj.DriverStation;
-    import com.revrobotics.SparkMaxPIDController;
-    import com.revrobotics.CANSparkMax;
-    import com.revrobotics.CANSparkMax.ControlType;
-    import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-    import java.util.Map;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-    public class Endgame {
+public class Endgame implements IEndgame {
 
     private CANSparkMax leftEndgame;
     private CANSparkMax rightEndgame;
 
-    private static final double ENDGAME_HIGH = 0.5;
-    
+    private static final double ENDGAME_HIGH = 0.1;
+
     private enum EndgameMode {
         IDLE,
         RAISE,
@@ -27,8 +21,8 @@ package main.java.frc.robot;
     private double endgameSpeed = 0.0;
 
     public Endgame() {
-        leftEndgame = new CANSparkMax(PortMap.CAN.LEFT_ENDGAME, MotorType.kBrushless);
-        rightEndgame = new CANSparkMax(PortMap.Can.RIGHT_ENDGAME, MotorType.kBrushless);
+        leftEndgame = new CANSparkMax(PortMap.CAN.ENDGAME_LEFT_MOTOR, MotorType.kBrushless);
+        rightEndgame = new CANSparkMax(PortMap.CAN.ENDGAME_RIGHT_MOTOR, MotorType.kBrushless);
 
         leftEndgame.restoreFactoryDefaults();
         rightEndgame.restoreFactoryDefaults();
@@ -42,15 +36,15 @@ package main.java.frc.robot;
         stop();
         leftEndgame.restoreFactoryDefaults();
         rightEndgame.restoreFactoryDefaults();
-        EndgameMode = EndgameMode.IDLE;
+        endgameMode = EndgameMode.IDLE;
     }
 
     public void stop() {
         endgameSpeed = 0.0;
     }
-     
+        
     public void raise() {
-       endgameMode = EndgameMode.RAISE;
+        endgameMode = EndgameMode.RAISE;
     }
 
     public void lower() {
@@ -60,15 +54,18 @@ package main.java.frc.robot;
     public void periodic() {
         stop();
 
-        if(EndgameMode == EndgameMode.RAISE) {
+        if(endgameMode == EndgameMode.RAISE) {
             endgameSpeed = ENDGAME_HIGH;
             endgameMode = EndgameMode.IDLE;
-    }
+        }
 
-        if(EndgameMode == EndgameMode.LOWER) {
+        if(endgameMode == EndgameMode.LOWER) {
             endgameSpeed = -ENDGAME_HIGH;
             endgameMode = EndgameMode.IDLE;
         }
+
+        leftEndgame.set(endgameSpeed);
+        rightEndgame.set(endgameSpeed);
     }
   
 }
