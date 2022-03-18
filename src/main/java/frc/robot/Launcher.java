@@ -6,6 +6,8 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Launcher implements ILauncher {
+  
+    private Mode mode;
 
     private CANSparkMax intakeMotor;
     private CANSparkMax shooterMotor;
@@ -25,6 +27,9 @@ public class Launcher implements ILauncher {
 
     private static final double INTAKE_HIGH = 0.45;
     private static final double STORAGE_HIGH = 0.5;
+  
+    private static final double AUTO_SHOOTER_ROTATIONS = 10000;
+    private static final double AUTO_STORAGE_ROTATIONS = 50;
 
     private double maxOutput = 1.0;
     private double minOutput = 0.0;
@@ -45,8 +50,6 @@ public class Launcher implements ILauncher {
         intakeMotor = new CANSparkMax(PortMap.CAN.INTAKE_MOTOR_CONTROLLER, MotorType.kBrushed);
         storageMotor = new CANSparkMax(PortMap.CAN.STORAGE_MOTOR_CONTROLLER, MotorType.kBrushless);
         shooterMotor = new CANSparkMax(PortMap.CAN.SHOOTER_MOTOR_CONTROLLER, MotorType.kBrushless);
-        //the stuff below is old from last year
-        // storageSwitch = new DigitalInput(PortMap.DIO.BOTTOM_STORAGE);
         
         shooterMotor.setInverted(false);
         shooterPIDController = shooterMotor.getPIDController();
@@ -74,72 +77,79 @@ public class Launcher implements ILauncher {
 
     @Override
     public void intake() {
+        mode = Mode.MANUAL;
         storageMode = StorageMode.STORAGE_INTAKE;
     }
 
     @Override
     public void advance() {
+        mode = Mode.MANUAL;
         storageMode = StorageMode.ADVANCE;
     }
 
     @Override
     public void reverse() {
+        mode = Mode.MANUAL;
         storageMode = StorageMode.REVERSE;
     }
 
     @Override
     public void shoot() {
+        mode = Mode.MANUAL;
         shooterMode = ShooterMode.SHOOT;
     }
 
-@Override
+    @Override
+    public void autoShoot() {
+        mode = Mode.AUTO;
+
+        shooterMode = ShooterMode.SHOOT;
+        storageMode = StorageMode.ADVANCE;
+    }
+
+
+    @Override
     public void periodic() {
         stop();
+        if (mode == Mode.MANUAL) {
 
-        if(storageMode == StorageMode.STORAGE_INTAKE) {
-
-            /*if(storageMotor.getEncoder().getPosition() > INITIAL_INTAKE_ROTATIONS) {
-                storageMode = StorageMode.IDLE;
-                storageMotor.restoreFactoryDefaults();
-            } else {
+            if (storageMode == StorageMode.STORAGE_INTAKE) {
                 intakeSpeed = INTAKE_HIGH;
-                storageSpeed = STORAGE_HIGH;
-            }*/
-            intakeSpeed = INTAKE_HIGH;
-            storageMode = StorageMode.IDLE;
-
-        } else if(storageMode == StorageMode.ADVANCE) {
-
-            /*if(storageMotor.getEncoder().getPosition() > ADVANCE_ONE_BALL_ROTATIONS) {
                 storageMode = StorageMode.IDLE;
-                storageMotor.restoreFactoryDefaults();
-            } else {
+            } else if (storageMode == StorageMode.ADVANCE) {
                 storageSpeed = STORAGE_HIGH;
-            }*/
-            storageSpeed = STORAGE_HIGH;
-            storageMode = StorageMode.IDLE;
-
-        } else if(storageMode == StorageMode.REVERSE) {
-
-            /*if(Math.abs(storageMotor.getEncoder().getPosition()) < ADVANCE_ONE_BALL_ROTATIONS) {
+                storageMode = StorageMode.IDLE;
+            } else if (storageMode == StorageMode.REVERSE) {
                 storageSpeed = -STORAGE_HIGH;
-            } else {
+                storageMode = StorageMode.IDLE;
+            }
+        
+            if(shooterMode == ShooterMode.SHOOT) {
+                shooterSetPoint = maxRPM;
+                shooterMode = ShooterMode.IDLE;
+            }
+          
+        } else if (mode == Mode.AUTO) {
+    
+            if (storageMotor.getEncoder().getPosition() > AUTO_STORAGE_ROTATIONS) {
                 storageMode = StorageMode.IDLE;
                 storageMotor.restoreFactoryDefaults();
-            }*/
-            storageSpeed = -STORAGE_HIGH;
-            storageMode = StorageMode.IDLE;
+            } else {
+                storageSpeed = STORAGE_HIGH;
+            }
+
+            if (shooterMotor.getEncoder().getPosition() > AUTO_SHOOTER_ROTATIONS) {
+                shooterMode = ShooterMode.IDLE;
+                shooterMotor.restoreFactoryDefaults();
+            } else {
+                shooterSetPoint = maxRPM;
+            }
+
+        } else {
+            throw new IllegalArgumentException("The launcher controllers are in an invalid launcher mode.");
         }
-        
-        if(shooterMode == ShooterMode.SHOOT) {
-
-            shooterSetPoint = maxRPM;
-            shooterMode = ShooterMode.IDLE;
-
-        }
-
         intakeMotor.set(intakeSpeed);
         storageMotor.set(storageSpeed);
         shooterPIDController.setReference(shooterSetPoint, ControlType.kVelocity);
-    }
+    }   
 }

@@ -14,6 +14,8 @@ public interface ILauncher {
 
     public void shoot();
 
+    public void autoShoot();
+
     public void periodic();
 
 }
