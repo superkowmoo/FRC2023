@@ -5,8 +5,8 @@ public class NullDrive implements IDrive {
     public void resetGyro() {
     }
     
-    public DriveMode getCurrentDriveMode() {
-        return DriveMode.IDLE;
+    public Mode getCurrentDriveMode() {
+        return Mode.IDLE;
     }
 
     public void rotateRelative(double angle) {

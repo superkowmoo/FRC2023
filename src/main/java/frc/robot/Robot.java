@@ -13,16 +13,18 @@ public class Robot extends RobotBase {
 
     private IDrive drive;
     private ILauncher launcher;
+    private IEndgame endgame;
     private IGyroscopeSensor gyroscope;
 
     public Robot() {
         gyroscope = new NavXMXP();
         launcher = new Launcher();
+        endgame = new Endgame();
 
         drive = new Drive(gyroscope);
         //drive = new NullDrive();
         disabledMode = new DisabledMode();
-        teleoperatedMode = new TeleoperatedMode(drive, launcher);
+        teleoperatedMode = new TeleoperatedMode(drive, launcher, endgame);
         autonomousMode = new AutonomousMode(drive, launcher);
     }
 
@@ -53,11 +55,13 @@ public class Robot extends RobotBase {
     private void doPeripheralReinitialization() {
         drive.init();
         launcher.init();
+        endgame.init();
     }
 
     private void doPeripheralPeriodicProcessing() {
         drive.periodic();
         launcher.periodic();
+        endgame.periodic();
         Debug.periodic();
     }
 

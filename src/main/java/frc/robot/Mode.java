@@ -2,5 +2,6 @@ package frc.robot;
 
 public enum Mode {
     MANUAL,
-    AUTO
+    AUTO,
+    IDLE
 }
