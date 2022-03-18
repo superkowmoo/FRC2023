@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation;
 
 public class TeleoperatedMode implements IRobotMode {
     
@@ -24,6 +23,7 @@ public class TeleoperatedMode implements IRobotMode {
     @Override
     public void init(){
         drive.init();
+        launcher.init();
     }
 
      @Override
