@@ -19,8 +19,6 @@ public class PortMap {
     }
 
     public class DIO {
-        public static final int BOTTOM_STORAGE = 0;
+        //public static final int BOTTOM_STORAGE = 0;
     }
 }
-
-// TODO change intake, storage, shooter, endgame values
