@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 public class Launcher implements ILauncher {
   
     private Mode mode;
+    private Runnable currentCompletionRoutine;
 
     private CANSparkMax intakeMotor;
     private CANSparkMax shooterMotor;
@@ -34,7 +35,7 @@ public class Launcher implements ILauncher {
     private double maxOutput = 1.0;
     private double minOutput = 0.0;
     private double shooterSetPoint = 0.0;
-    private double maxRPM = 3000;
+    private double maxRPM = 2800;
 
     private enum StorageMode {
         IDLE,
@@ -100,13 +101,12 @@ public class Launcher implements ILauncher {
     }
 
     @Override
-    public void autoShoot() {
+    public void autoShoot(Runnable completionRoutine) {
         mode = Mode.AUTO;
-
-        shooterMode = ShooterMode.SHOOT;
-        storageMode = StorageMode.ADVANCE;
+        storageMotor.restoreFactoryDefaults();
+        shooterMotor.restoreFactoryDefaults();
+        currentCompletionRoutine = completionRoutine;
     }
-
 
     @Override
     public void periodic() {
@@ -127,27 +127,39 @@ public class Launcher implements ILauncher {
             if(shooterMode == ShooterMode.SHOOT) {
                 shooterSetPoint = maxRPM;
                 shooterMode = ShooterMode.IDLE;
+                //Debug.logPeriodic("shooter is spinning");
             }
-          
-        } else if (mode == Mode.AUTO) {
-    
-            if (storageMotor.getEncoder().getPosition() > AUTO_STORAGE_ROTATIONS) {
-                storageMode = StorageMode.IDLE;
-                storageMotor.restoreFactoryDefaults();
-            } else {
-                storageSpeed = STORAGE_HIGH;
-            }
+            
+            //Debug.logPeriodic("shooter motor RPM " + shooterMotor.getEncoder().getVelocity());
 
-            if (shooterMotor.getEncoder().getPosition() > AUTO_SHOOTER_ROTATIONS) {
-                shooterMode = ShooterMode.IDLE;
+        } else if (mode == Mode.AUTO) {
+            
+            //Debug.log("AUTO shooter");
+            /*if (shooterMotor.getEncoder().getPosition() > AUTO_SHOOTER_ROTATIONS) {
                 shooterMotor.restoreFactoryDefaults();
             } else {
                 shooterSetPoint = maxRPM;
+                Debug.log("shooter is spinning");
             }
 
-        } else {
-            throw new IllegalArgumentException("The launcher controllers are in an invalid launcher mode.");
-        }
+            if (shooterMotor.getEncoder().getVelocity() >= maxRPM - 100) {
+                if (storageMotor.getEncoder().getPosition() > AUTO_STORAGE_ROTATIONS) {
+                    storageMotor.restoreFactoryDefaults();
+                    stop();
+                    currentCompletionRoutine.run();
+                } else {
+                    storageSpeed = STORAGE_HIGH;
+                }
+    
+            }*/
+
+            shooterSetPoint = maxRPM;
+            storageSpeed = STORAGE_HIGH;
+
+            //Debug.logPeriodic("Shooter motor rotations" + shooterMotor.getEncoder().getPosition());
+            //Debug.logPeriodic("Shooter motor speed" + shooterMotor.getEncoder().getVelocity());
+            //Debug.logPeriodic("Storage motor rotations" + storageMotor.getEncoder().getPosition());
+        } 
         intakeMotor.set(intakeSpeed);
         storageMotor.set(storageSpeed);
         shooterPIDController.setReference(shooterSetPoint, ControlType.kVelocity);

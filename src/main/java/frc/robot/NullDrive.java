@@ -2,7 +2,15 @@ package frc.robot;
 
 public class NullDrive implements IDrive {
 
+    private IGyroscopeSensor gyroscope;
+
+    public NullDrive(IGyroscopeSensor gyroscope) {
+        this.gyroscope = gyroscope;
+    }
+
     public void resetGyro() {
+        gyroscope.resetYaw();
+        Debug.log("Yaw: " + gyroscope.getYaw());
     }
     
     public Mode getCurrentDriveMode() {
