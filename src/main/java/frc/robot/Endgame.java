@@ -8,7 +8,7 @@ public class Endgame implements IEndgame {
     private CANSparkMax leftEndgame;
     private CANSparkMax rightEndgame;
 
-    private static final double ENDGAME_HIGH = 0.1;
+    private static final double ENDGAME_HIGH = 0.5;
 
     private enum EndgameMode {
         IDLE,

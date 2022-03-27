@@ -3,7 +3,7 @@ package frc.robot;
 public class AutonomousMode implements IRobotMode {
 
     private IDrive drive;
-    private double speed = 0.8;
+    private double speed = 0.1;
 
     private ILauncher launcher;
 
@@ -17,12 +17,26 @@ public class AutonomousMode implements IRobotMode {
     }
 
     public void autoMove() { 
-        drive.driveDistance(-30, speed, 0, () -> autoShoot()); // change speed and angle
+        drive.driveDistance(20, speed, 0, () -> autoShoot());
+        Debug.log("autoMove1");
+        Debug.log("current drive mode: " + drive.getCurrentDriveMode());
     }
 
     public void autoShoot() {
-        launcher.autoShoot();
+        launcher.autoShoot(() -> autoMove2());
+        Debug.log("autoShoot");
     }
+
+    public void autoMove2() {
+        drive.driveDistance(35, -speed, 0, null);
+        Debug.log("autoMove2");
+    }
+
+    /*public void autoMove() {
+        drive.driveDistance(40, -speed, 0, null);
+        Debug.log("autoMove1");
+        Debug.log("current drive mode: " + drive.getCurrentDriveMode());
+    }*/
 
     @Override
     public void periodic() {

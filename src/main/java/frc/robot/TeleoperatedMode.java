@@ -31,6 +31,10 @@ public class TeleoperatedMode implements IRobotMode {
      @Override
      public void periodic() {
 
+        if (xboxController.getBackButton()) {
+            drive.resetGyro();
+        }
+
         double leftX = xboxController.getLeftX();
         double leftY = -xboxController.getLeftY();
 
@@ -75,10 +79,6 @@ public class TeleoperatedMode implements IRobotMode {
 
          if (xboxController.getYButton()) {
             endgame.raise();
-        }
-
-        if (xboxController.getBackButton()) {
-            drive.resetGyro();
         }
      }
 

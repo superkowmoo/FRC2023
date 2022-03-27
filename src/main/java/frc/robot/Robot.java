@@ -22,7 +22,7 @@ public class Robot extends RobotBase {
         endgame = new Endgame();
 
         drive = new Drive(gyroscope);
-        //drive = new NullDrive();
+        //drive = new NullDrive(gyroscope);
         disabledMode = new DisabledMode();
         teleoperatedMode = new TeleoperatedMode(drive, launcher, endgame);
         autonomousMode = new AutonomousMode(drive, launcher);
