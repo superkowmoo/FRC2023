@@ -16,7 +16,7 @@ public class AutonomousMode implements IRobotMode {
         autoMove();
     }
 
-    public void autoMove() { 
+    /*public void autoMove() { 
         drive.driveDistance(20, speed, 0, () -> autoShoot());
         Debug.log("autoMove1");
         Debug.log("current drive mode: " + drive.getCurrentDriveMode());
@@ -30,13 +30,13 @@ public class AutonomousMode implements IRobotMode {
     public void autoMove2() {
         drive.driveDistance(35, -speed, 0, null);
         Debug.log("autoMove2");
-    }
+    }*/
 
-    /*public void autoMove() {
-        drive.driveDistance(40, -speed, 0, null);
+    public void autoMove() {
+        drive.driveDistance(30, -speed, 0, null);
         Debug.log("autoMove1");
         Debug.log("current drive mode: " + drive.getCurrentDriveMode());
-    }*/
+    }
 
     @Override
     public void periodic() {
