@@ -51,6 +51,10 @@ public class Launcher implements ILauncher {
         intakeMotor = new CANSparkMax(PortMap.CAN.INTAKE_MOTOR_CONTROLLER, MotorType.kBrushed);
         storageMotor = new CANSparkMax(PortMap.CAN.STORAGE_MOTOR_CONTROLLER, MotorType.kBrushless);
         shooterMotor = new CANSparkMax(PortMap.CAN.SHOOTER_MOTOR_CONTROLLER, MotorType.kBrushless);
+
+        intakeMotor.restoreFactoryDefaults();
+        storageMotor.restoreFactoryDefaults();
+        shooterMotor.restoreFactoryDefaults();
         
         shooterMotor.setInverted(false);
         shooterPIDController = shooterMotor.getPIDController();
@@ -103,8 +107,8 @@ public class Launcher implements ILauncher {
     @Override
     public void autoShoot(Runnable completionRoutine) {
         mode = Mode.AUTO;
-        storageMotor.restoreFactoryDefaults();
-        shooterMotor.restoreFactoryDefaults();
+        storageMotor.getEncoder().setPosition(0.0);
+        shooterMotor.getEncoder().setPosition(0.0);
         currentCompletionRoutine = completionRoutine;
     }
 
