@@ -130,8 +130,8 @@ public class Drive implements IDrive {
     public void driveManualImplementation(double forwardSpeed, double strafeSpeed) {
         mode = Mode.MANUAL;
 
-        double absoluteForward = .8 * (forwardSpeed * Math.cos(gyroscope.getYaw()) + strafeSpeed * Math.sin(gyroscope.getYaw()));
-        double absoluteStrafe = .8 * (-forwardSpeed * Math.sin(gyroscope.getYaw()) + strafeSpeed * Math.cos(gyroscope.getYaw())); 
+        double absoluteForward = .9 * (forwardSpeed * Math.cos(gyroscope.getYaw()) + strafeSpeed * Math.sin(gyroscope.getYaw()));
+        double absoluteStrafe = .9 * (-forwardSpeed * Math.sin(gyroscope.getYaw()) + strafeSpeed * Math.cos(gyroscope.getYaw())); 
 
         this.forwardSpeed = absoluteForward;
         this.strafeSpeed = absoluteStrafe;
